@@ -1,24 +1,36 @@
-import {View, Text, Button} from 'react-native';
 import React from 'react';
-import ReactNativeBiometrics, {BiometryTypes} from 'react-native-biometrics';
-import {saveBiometricWithExpiration} from '../services/sessionService';
-import {SET_BIOMETRIC, setBiometric} from '../redux/actions/action';
 import {useDispatch} from 'react-redux';
+import {View, Text, Button} from 'react-native';
+import {setBiometric} from '../redux/actions/action';
+import ReactNativeBiometrics from 'react-native-biometrics';
+import {saveBiometricWithExpiration} from '../services/sessionService';
 
-const BiometricVerification = () => {
+const {add} = require('date-fns');
+
+const BiometricVerification = ({disabled}) => {
   const rnBiometrics = new ReactNativeBiometrics();
 
   const dispatch = useDispatch();
 
   const handleBiometricAuth = async () => {
+    const currentTime = new Date();
+    const expireTime = add(currentTime, { minutes: 1 });
+    
+    // Set expiration time of biometric as 1 min after currentTime
+
     try {
       const {success, error} = await rnBiometrics.simplePrompt({
         promptMessage: 'Authenticate using your biometric',
       });
 
       if (success) {
-        saveBiometricWithExpiration('biometric', success);
-        dispatch(setBiometric(true, SET_BIOMETRIC));
+        saveBiometricWithExpiration('biometric', success, expireTime).then(
+          resp => {
+            if (resp.data === true && resp.expirationTime) {
+              dispatch(setBiometric(true));
+            }
+          },
+        );
       } else {
         console.log(error);
         return error;
@@ -30,7 +42,14 @@ const BiometricVerification = () => {
 
   return (
     <View>
-      <Button title="Authenticate" onPress={handleBiometricAuth} />
+      <Text>
+        {!disabled ? 'Please authenticate your verification' : 'Authenticated'}
+      </Text>
+      <Button
+        title="Authenticate"
+        onPress={handleBiometricAuth}
+        disabled={disabled}
+      />
     </View>
   );
 };

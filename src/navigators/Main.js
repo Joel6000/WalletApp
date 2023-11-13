@@ -1,9 +1,7 @@
-import MainRoute from "./MainRoute"
+import MainRoute from './MainRoute';
 
 const Main = () => {
-  return (
-    <MainRoute/>
-  )
-}
+  return <MainRoute />;
+};
 
-export default Main
+export default Main;

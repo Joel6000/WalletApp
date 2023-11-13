@@ -1,11 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const {add, isPast} = require('date-fns');
-const currentTime = new Date();
-const expireTime = add(currentTime, { minutes: 1 });
+const {isPast, parseISO} = require('date-fns');
 
-
-const saveBiometricWithExpiration = async (key, data) => {
+const saveBiometricWithExpiration = async (key, data, expireTime) => {
   try {
     const expirationTime = expireTime;
     const dataToSave = {
@@ -22,17 +19,14 @@ const saveBiometricWithExpiration = async (key, data) => {
 };
 
 const loadBiometricWithExpiration = async key => {
-
   try {
     const storedValue = await AsyncStorage.getItem(key);
     if (storedValue !== null) {
       const dataObject = JSON.parse(storedValue);
       const {data, expirationTime} = dataObject;
-      if (isPast(expirationTime)) {
-        console.log('Data loaded successfully');
+      if (!isPast(parseISO(expirationTime))) {
         return data;
       } else {
-        // Data has expired, remove it
         await AsyncStorage.removeItem(key);
         console.log('Data has expired');
         const returnData = {

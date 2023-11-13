@@ -1,13 +1,12 @@
-import {View, Text, TouchableOpacity} from 'react-native';
 import React from 'react';
-import { useNavigation } from '@react-navigation/native';
 import Seperator from '../common/Seperator';
-import { NAVIGATION_SCREEN} from '../../constants/common';
+import {useNavigation} from '@react-navigation/native';
+import {NAVIGATION_SCREEN} from '../../constants/common';
+import {View, Text, TouchableOpacity} from 'react-native';
 
-const TransactionItem = ({ item }) => {
-  
-  const navigation = useNavigation()
-  
+const TransactionItem = ({item, disabled}) => {
+  const navigation = useNavigation();
+
   return (
     <View style={{flex: 1}}>
       <TouchableOpacity
@@ -17,9 +16,12 @@ const TransactionItem = ({ item }) => {
           flexDirection: 'row',
           justifyContent: 'space-between',
         }}
+        disabled={!disabled}
         onPress={() => {
-          console.log(item)
-          navigation.navigate(NAVIGATION_SCREEN.transaction_detail, {item: item});
+          console.log(item);
+          navigation.navigate(NAVIGATION_SCREEN.transaction_detail, {
+            item: item,
+          });
         }}>
         <View
           style={{
@@ -36,19 +38,34 @@ const TransactionItem = ({ item }) => {
             alignContent: 'center',
             justifyContent: 'center',
           }}>
-          <Text
-            style={{
-              margin: 10,
-              textAlign: 'center',
-              fontWeight: 'bold',
-              color: item.type === 'Debit' ? 'red' : 'green',
-            }}>
-            {item.type === 'Debit' ? '-' : '+'}
-            {item.amount}
-          </Text>
+          {!disabled ? (
+            <>
+              <Text
+                style={{
+                  margin: 10,
+                  textAlign: 'center',
+                  fontWeight: 'bold',
+                }}>
+                ******
+              </Text>
+            </>
+          ) : (
+            <>
+              <Text
+                style={{
+                  margin: 10,
+                  textAlign: 'center',
+                  fontWeight: 'bold',
+                  color: item.type === 'Debit' ? 'red' : 'green',
+                }}>
+                {item.type === 'Debit' ? '-' : '+'}
+                {item.amount}
+              </Text>
+            </>
+          )}
         </View>
       </TouchableOpacity>
-      <Seperator/>
+      <Seperator />
     </View>
   );
 };
